@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<title>W3.CSS Template</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+<style>
+    body,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: "Lato", sans-serif
+    }
+    
+    .w3-navbar,
+    h1,
+    button {
+        font-family: "Montserrat", sans-serif
+    }
+    
+    .fa-anchor,
+    .fa-coffee {
+        font-size: 200px
+    }
+</style>
+
+<body>
+
+    <!-- Navbar -->
+    <div class="w3-top">
+        <ul class="w3-navbar w3-red w3-card-2 w3-left-align w3-large">
+            <li class="w3-hide-medium w3-hide-large w3-opennav w3-right">
+                <a class="w3-padding-large w3-hover-white w3-large w3-red" href="javascript:void(0);" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
+            </li>
+            <li><a href="#" class="w3-padding-large w3-white">Home</a></li>
+        </ul>
+    </div>
+
+    <!-- Header -->
+    <header class="w3-container w3-red w3-center w3-padding-128" ng-app="myApp" ng-controller="myCtrl" ng-init="init()">
+        <h1 class="w3-margin w3-jumbo">Task 1: Javascript</h1>
+        <p id="placeholder" ng-show="showInput" class="w3-xlarge">
+            Country : <input ng-model="country" type="text" /> Zip : <input ng-model="zip" type="text" />
+        </p>
+        <p id="weather" ng-show="weather" class="w3-xlarge">Weather is {{weather}}</p>
+        <button ng-show="showInput" ng-click="getWeatherbyCountry()" class="w3-btn w3-padding-16 w3-large w3-margin-top">Get Wather</button>
+    </header>
+
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('myCtrl', function($scope, $http) {
+
+            $scope.showInput = false;
+            $scope.showWeather = false;
+            $scope.weather = "";
+            $scope.country = "";
+            $scope.zip = "";
+
+            $scope.showPosition = function(position) {
+                $scope.getWeather(position.coords.latitude, position.coords.longitude);
+            }
+
+            $scope.onError = function(error) {
+                $scope.$apply(function() {
+                    $scope.showInput = true;
+                });
+            }
+
+            $scope.getWeather = function(lat, lon) {
+                $http({
+                    method: 'GET',
+                    url: 'http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lon + '&APPID=8e69a70879d37c9064bd2c7d9977f3c5'
+                }).then(function successCallback(response) {
+                    $scope.showWeather = true;
+                    $scope.weather = response.data.weather[0].main;
+                }, function errorCallback(response) {
+                    console.log(response);
+                });
+            }
+
+            $scope.getWeatherbyCountry = function() {
+
+                var url2 = "";
+                if ($scope.zip != "")
+                    url2 = "http://api.openweathermap.org/data/2.5/weather?zip=" + $scope.zip + '&APPID=8e69a70879d37c9064bd2c7d9977f3c5';
+                else
+                    url2 = "http://api.openweathermap.org/data/2.5/weather?q=" + $scope.country + '&APPID=8e69a70879d37c9064bd2c7d9977f3c5';
+
+                $http({
+                    method: 'GET',
+                    url: url2
+                }).then(function successCallback(response) {
+                    $scope.showWeather = true;
+                    $scope.weather = response.data.weather[0].main;
+                }, function errorCallback(response) {
+                    console.log(response);
+                });
+            }
+
+            $scope.init = function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition($scope.showPosition, $scope.onError);
+                } else {
+                    $scope.$apply(function() {
+                        $scope.showInput = true;
+                    });
+                }
+            }
+
+        });
+    </script>
+
+</body>
+
+</html>
